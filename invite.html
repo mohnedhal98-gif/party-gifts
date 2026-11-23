@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Make the invitation QR | Birthday Gift Menu</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="ready">
+<div class="top"><div class="wrap">
+  <div class="brand"><div class="logo">🎁</div><div id="brand">GEMINI X <span>TOYS</span></div></div>
+  <a class="basket-btn" href="index.html" style="text-decoration:none">Open gift menu</a>
+</div></div>
+
+<div class="hero"><div class="wrap" style="display:block;padding:30px 18px 36px">
+  <span class="kicker">🧑‍💼 For party booking staff</span>
+  <h1 style="font-size:clamp(34px,5vw,54px)">Make the invitation QR code</h1>
+  <p>Fill in the party details. You get a QR code for the invitation. Guests scan it and see the gift menu with the party details ready.</p>
+</div></div>
+
+<div class="wrap tool">
+  <div class="panel">
+    <h2>1. Party details</h2>
+    <label for="venue">Party place</label>
+    <select class="in-f" id="venue"></select>
+    <label for="child">Birthday child's name</label>
+    <input class="in-f" id="child" placeholder="e.g. Sara">
+    <label for="pdate">Party date</label>
+    <input class="in-f" id="pdate" type="date">
+    <label for="ptime">Party time (optional, e.g. 16:00)</label>
+    <input class="in-f" id="ptime" placeholder="16:00">
+    <label for="theme">Party theme</label>
+    <select class="in-f" id="theme"></select>
+    <label for="lang">Language for the guests</label>
+    <select class="in-f" id="lang"><option value="">Their phone decides</option><option value="en">English</option><option value="ar">العربية</option></select>
+
+    <h2 style="margin-top:20px">2. Wishlist (optional)</h2>
+    <p class="meta" style="margin:-6px 0 8px;color:var(--mut);font-size:14px">Tick the toys the birthday child wants. They show first for the guests.</p>
+    <input class="in-f" id="wq" type="search" placeholder="Search toys…" style="margin-bottom:8px">
+    <div class="wl-list" id="wl"></div>
+  </div>
+
+  <div class="panel">
+    <h2>3. QR code for the invitation</h2>
+    <p class="meta" style="margin:-2px 0 10px;color:var(--mut);font-weight:700;font-size:14px">Designing your own invitation? Use <b>QR only</b>, <b>QR for print</b> or the <b>Small QR badge</b> and place it on your design. Keep it at least 2.5 cm wide so phones can scan it.</p>
+    <div class="qrbox"><canvas id="card" width="600" height="760"></canvas></div>
+    <div class="linkbox" id="link"></div>
+    <div class="btns">
+      <button class="btn" id="dl">⬇ Download QR card</button>
+      <button class="btn dark" id="dlqr">⬇ QR only (PNG)</button>
+      <button class="btn dark" id="dlsvg">⬇ QR for print (SVG)</button>
+      <button class="btn dark" id="dlbadge">⬇ Small QR badge</button>
+      <button class="btn dark" id="copy">Copy link</button>
+      <button class="btn dark" id="wa">Send to parent on WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/qrcode.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(async function () {
+  const $ = id => document.getElementById(id);
+  const { config: C, products: ALL, stock: S } = await GX.load();
+  let logoImg = null; if (C.logoLight || C.logo) { logoImg = new Image(); logoImg.onload = () => update(); logoImg.src = C.logoLight || C.logo; }
+  if (C.logo) { document.querySelector(".brand .logo").innerHTML = `<img src="${C.logoLight || C.logo}" alt="Gemini X" style="height:40px;display:block">`; document.querySelector(".brand .logo").classList.add("img"); }
+  const stockOf = v => (S.venues && S.venues[v]) || null;
+  let P = ALL;
+  const words = C.shopName.toUpperCase().split(" ");
+  $("brand").innerHTML = GX.esc(words.slice(0, -1).join(" ")) + " <span>" + GX.esc(words.slice(-1)[0]) + "</span>";
+  $("venue").innerHTML = C.venues.map(v => `<option value="${v.id}">${GX.esc(v.name)}</option>`).join("");
+  $("theme").innerHTML = Object.entries(GX.THEMES).map(([k, t]) => `<option value="${k}">${t.e} ${t.en}</option>`).join("");
+  const venueStock = () => { const m = stockOf($("venue").value); P = m ? ALL.filter(p => m[p.id] > 0) : ALL; for (const id of [...wish]) if (!P.find(p => p.id === id)) wish.delete(id); drawWL(); };
+  const wish = new Set();
+
+  const drawWL = () => {
+    const q = $("wq").value.trim().toLowerCase();
+    $("wl").innerHTML = P.filter(p => !q || p.name.toLowerCase().includes(q)).map(p =>
+      `<label class="wl-item"><input type="checkbox" data-id="${p.id}" ${wish.has(p.id) ? "checked" : ""}> ${p.image ? `<img src="${p.image}" alt="" loading="lazy">` : p.emoji} ${GX.esc(p.name)} <span style="margin-left:auto;color:var(--mut)">${GX.money(p.price, C.currency)}</span></label>`).join("");
+  };
+  $("wl").onchange = e => { const id = e.target.dataset.id; if (!id) return; e.target.checked ? wish.add(id) : wish.delete(id); update(); };
+  $("wq").oninput = drawWL;
+
+  const base = location.href.split("?")[0].replace(/invite\.html$/, "");
+  function url() {
+    const q = new URLSearchParams();
+    q.set("v", $("venue").value);
+    if ($("child").value.trim()) q.set("c", $("child").value.trim());
+    if ($("pdate").value) q.set("d", $("pdate").value);
+    if ($("ptime").value.trim()) q.set("t", $("ptime").value.trim());
+    if (wish.size) q.set("w", [...wish].join(","));
+    if ($("theme").value !== "party") q.set("th", $("theme").value);
+    if ($("lang").value) q.set("lang", $("lang").value);
+    return base + "?" + q.toString();
+  }
+
+  function qrMatrix(text) { const qr = qrcode(0, "M"); qr.addData(text, "Byte"); qr.make(); return qr; }
+
+  function drawQR(ctx, qr, x, y, size) {
+    const n = qr.getModuleCount(), cell = size / n;
+    ctx.fillStyle = "#1B1530";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      if (qr.isDark(r, c)) ctx.fillRect(Math.floor(x + c * cell), Math.floor(y + r * cell), Math.ceil(cell), Math.ceil(cell));
+  }
+
+  function wrapText(ctx, text, x, y, maxW, lh) {
+    const words = text.split(" "); let line = "", lines = [];
+    for (const w of words) { const t = line ? line + " " + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+    lines.push(line); lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh)); return lines.length;
+  }
+
+  function update() {
+    const link = url();
+    $("link").textContent = link;
+    const qr = qrMatrix(link);
+    const cv = $("card"), ctx = cv.getContext("2d");
+    const W = cv.width, H = cv.height;
+    const TH = GX.THEMES[$("theme").value] || GX.THEMES.party;
+    ctx.fillStyle = TH.bg; ctx.fillRect(0, 0, W, H); ctx.strokeStyle = "#1B1530"; ctx.lineWidth = 10; ctx.strokeRect(5, 5, W - 10, H - 10);
+    // confetti
+    const col = ["#FF4F8B", "#38B6FF", "#1B1530", "#ffffff"];
+    for (let i = 0; i < 26; i++) { ctx.save(); ctx.translate(i % 2 ? 8 + (i * 7) % 22 : W - 8 - (i * 7) % 22, 20 + (i * 113) % (H - 40)); ctx.rotate(i); ctx.fillStyle = col[i % 4]; ctx.fillRect(-5, -8, 10, 16); ctx.restore(); }
+    // white panel
+    ctx.fillStyle = "#1B1530"; ctx.beginPath(); ctx.roundRect(47, 137, W - 80, 490, 28); ctx.fill(); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.roundRect(40, 130, W - 80, 490, 28); ctx.fill(); ctx.lineWidth = 5; ctx.stroke();
+    ctx.textAlign = "center"; ctx.fillStyle = "#1B1530";
+    ctx.font = "800 44px 'Baloo 2', Nunito, Segoe UI, Arial";
+    const child = $("child").value.trim();
+    ctx.fillText(TH.e + " Scan to pick a gift", W / 2, 70);
+    ctx.font = "700 24px Nunito, Segoe UI, Arial";
+    ctx.fillText(child ? "for " + child + "'s birthday" : "for the birthday party", W / 2, 108);
+    drawQR(ctx, qr, (W - 380) / 2, 175, 380);
+    ctx.font = "800 22px Nunito, Segoe UI, Arial";
+    ctx.fillText("Free gift wrap · Pay at the toy shop", W / 2, 595);
+    if (logoImg && logoImg.complete && logoImg.naturalWidth) { const lh = 50, lw = lh * logoImg.naturalWidth / logoImg.naturalHeight, x0 = W / 2 - (lw + 16 + 230) / 2; ctx.fillStyle = "#1B1530"; ctx.beginPath(); ctx.roundRect(x0 - 14, 628, lw + 16 + 230 + 40, lh + 16, 18); ctx.fill(); ctx.drawImage(logoImg, x0 + 6, 636, lw, lh); ctx.fillStyle = "#fff"; ctx.textAlign = "left"; ctx.font = "800 30px 'Baloo 2', Nunito, Segoe UI, Arial"; ctx.fillText(C.shopName.toUpperCase(), x0 + lw + 26, 670); ctx.fillStyle = "#1B1530"; ctx.textAlign = "center"; }
+    else { ctx.font = "800 30px 'Baloo 2', Nunito, Segoe UI, Arial"; ctx.fillText(C.shopName.toUpperCase(), W / 2, 660); }
+    ctx.font = "600 20px Nunito, Segoe UI, Arial";
+    const v = C.venues.find(x => x.id === $("venue").value);
+    const sub = [$("pdate").value ? GX.niceDate($("pdate").value) : "", v ? v.name : ""].filter(Boolean).join(" · ");
+    wrapText(ctx, sub || C.tagline, W / 2, 726, W - 80, 26);
+  }
+
+  ["venue", "child", "pdate", "ptime", "theme", "lang"].forEach(id => $(id).addEventListener("input", update));
+  $("venue").addEventListener("change", () => { venueStock(); update(); });
+
+  const fileName = () => "gift-qr-" + ($("child").value.trim() || "party").replace(/\W+/g, "-").toLowerCase() + ".png";
+  const download = (canvas, name) => { const a = document.createElement("a"); a.href = canvas.toDataURL("image/png"); a.download = name; a.click(); };
+  $("dl").onclick = () => download($("card"), fileName());
+  $("dlqr").onclick = () => {
+    const qr = qrMatrix(url()), c = document.createElement("canvas"); c.width = c.height = 800;
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, 800, 800); drawQR(x, qr, 40, 40, 720);
+    download(c, fileName().replace("gift-qr", "qr-only"));
+  };
+  $("dlsvg").onclick = () => {
+    const qr = qrMatrix(url()), n = qr.getModuleCount(), q = 4; let r = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.isDark(y, x)) r += `<rect x="${x + q}" y="${y + q}" width="1" height="1"/>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n + 2 * q} ${n + 2 * q}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><g fill="#1B1530">${r}</g></svg>`;
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); a.download = fileName().replace("gift-qr", "qr-print").replace(".png", ".svg"); a.click();
+  };
+  $("dlbadge").onclick = () => {
+    const qr = qrMatrix(url()), c = document.createElement("canvas"); c.width = 600; c.height = 720;
+    const x = c.getContext("2d"), TH = GX.THEMES[$("theme").value] || GX.THEMES.party;
+    x.fillStyle = "#fff"; x.beginPath(); x.roundRect(6, 6, 588, 708, 40); x.fill(); x.lineWidth = 8; x.strokeStyle = "#1B1530"; x.stroke();
+    drawQR(x, qr, 60, 60, 480);
+    x.fillStyle = TH.bg; x.beginPath(); x.roundRect(40, 572, 520, 112, 26); x.fill();
+    x.fillStyle = "#1B1530"; x.textAlign = "center"; x.font = "800 40px 'Baloo 2', Nunito, Arial"; x.fillText(TH.e + " Scan to pick a gift", 300, 622);
+    x.font = "700 24px Nunito, Arial"; x.fillText("Free gift wrap · Pay at the toy shop", 300, 660);
+    download(c, fileName().replace("gift-qr", "qr-badge"));
+  };
+  $("copy").onclick = async () => { try { await navigator.clipboard.writeText(url()); $("copy").textContent = "✓ Copied"; } catch (e) { prompt("Copy this link:", url()); } setTimeout(() => $("copy").textContent = "Copy link", 1500); };
+  $("wa").onclick = () => {
+    const child = $("child").value.trim();
+    const text = `Hello! Here is the gift menu for ${child ? child + "'s" : "your"} birthday party 🎉\nPlease share this link (or the QR card) with your guests. They pick a gift, we wrap it for free, and it is ready at the party.\n\n${url()}`;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+  };
+
+  venueStock(); update(); if (document.fonts) document.fonts.ready.then(update);
+})();
+</script>
+</body>
+</html>

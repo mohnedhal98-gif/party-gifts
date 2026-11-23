@@ -1,0 +1,36 @@
+{
+  "shopName": "Gemini X Toys",
+  "tagline": "Birthday gifts, ready and wrapped at the party",
+  "currency": "QAR",
+  "reserveBeforeHours": 24,
+  "giftWrapNote": "Free gift wrap and a name card on every gift. Your gift waits for you at the party.",
+  "venues": [
+    {
+      "id": "wow",
+      "name": "WoW – Lusail Boulevard",
+      "shopLocation": "Lusail Boulevard",
+      "odoo": [
+        "GMXWH/WoW"
+      ]
+    },
+    {
+      "id": "mgp",
+      "name": "Megapolis – The Pearl",
+      "shopLocation": "The Pearl Island",
+      "odoo": [
+        "GMXWH/Megapolis"
+      ]
+    },
+    {
+      "id": "kdz",
+      "name": "KidzMondo – Qatar Mall",
+      "shopLocation": "Qatar Mall",
+      "odoo": [
+        "GMXWH/KidzMondo"
+      ]
+    }
+  ],
+  "logo": "images/logo.png",
+  "safetyBuffer": 1,
+  "logoLight": "images/logo-light.png"
+}

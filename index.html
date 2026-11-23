@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Birthday Gift Menu</title>
+<meta name="description" content="Pick a birthday gift. We wrap it for free and it waits for you at the party.">
+<meta name="theme-color" content="#1B1530">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div class="brand"><div class="logo" id="logo">🎁</div><div id="brand">GEMINI X <span>TOYS</span></div></div>
+  <div class="top-actions">
+    <button class="tbtn" id="langBtn" aria-label="Language">عربي</button>
+    <button class="tbtn icon" id="soundBtn" aria-label="Sound" title="Sound">🔇</button>
+    <button class="tbtn" id="topFinder">🔮 <span class="t" data-i="giftFinder">Gift finder</span></button>
+    <button class="tbtn hide" id="openTicket">🎟️ <span class="t" data-i="myList">My list</span></button>
+    <button class="basket-btn" id="openBasket">🛍️ <span class="t" data-i="giftBag">Gift bag</span> <b id="count">0</b></button>
+  </div>
+</div></div>
+
+<header class="hero">
+  <div class="balloons" id="balloons"></div>
+  <div class="floaties" id="floaties" aria-hidden="true"></div>
+  <div class="wrap">
+    <div>
+      <span class="kicker" id="kicker">🎉 Birthday Gift Menu</span>
+      <h1 id="heroTitle">Pick a gift.<br>We <span class="nm">wrap</span> it.</h1>
+      <p class="lead" id="heroText"></p>
+      <div class="count hide" id="countdown"></div>
+      <div class="party-chips" id="partyChips"></div>
+      <div class="venue-pick hide" id="venuePick"><b data-i="wherePrompt">📍 Where is the party?</b><span data-i="whereT"></span><div id="venueChips"></div></div>
+      <div class="hero-ctas">
+        <a class="cta ink" href="#menu" data-i="seeAll">🎁 See all gifts</a>
+        <button class="cta pink" id="heroFinder" data-i="helpChoose">🔮 Help me choose</button>
+        <button class="cta" id="heroSurprise" data-i="surprise">🎲 Surprise me</button>
+      </div>
+    </div>
+    <div class="giftart" aria-hidden="true">
+      <svg viewBox="0 0 300 300">
+        <g class="pop"><circle cx="150" cy="78" r="58" fill="#fff" stroke="#1B1530" stroke-width="5"/><clipPath id="popClip"><circle cx="150" cy="78" r="52"/></clipPath><image id="popImg" href="" x="98" y="26" width="104" height="104" clip-path="url(#popClip)" preserveAspectRatio="xMidYMid meet"/><text x="150" y="98" font-size="56" text-anchor="middle" id="artPop">🧸</text></g>
+        <rect x="58" y="150" width="184" height="130" rx="14" fill="var(--ac)" stroke="#1B1530" stroke-width="6"/>
+        <g opacity=".35" fill="#fff"><circle cx="90" cy="185" r="7"/><circle cx="200" cy="250" r="9"/><circle cx="120" cy="250" r="5"/><circle cx="215" cy="180" r="6"/><circle cx="85" cy="255" r="4"/></g>
+        <rect x="134" y="150" width="32" height="130" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
+        <g class="lid">
+          <rect x="44" y="112" width="212" height="44" rx="12" fill="var(--ac)" stroke="#1B1530" stroke-width="6"/>
+          <rect x="134" y="112" width="32" height="44" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
+          <path d="M150 112 C110 60 70 80 96 108 Z" fill="#38B6FF" stroke="#1B1530" stroke-width="6" stroke-linejoin="round"/>
+          <path d="M150 112 C190 60 230 80 204 108 Z" fill="#38B6FF" stroke="#1B1530" stroke-width="6" stroke-linejoin="round"/>
+          <circle cx="150" cy="110" r="12" fill="#FFC700" stroke="#1B1530" stroke-width="6"/>
+        </g>
+        <g transform="rotate(-12 226 216)"><rect x="200" y="200" width="78" height="40" rx="8" fill="#fff" stroke="#1B1530" stroke-width="4"/><text x="239" y="226" font-size="15" font-weight="800" text-anchor="middle" font-family="Nunito,sans-serif" fill="#1B1530" id="artTag">For you!</text></g>
+      </svg>
+      <div class="sticker s1" id="stk1">FREE gift wrap!</div>
+      <div class="sticker s2" id="stk2">Pay at the shop 💛</div>
+    </div>
+  </div>
+</header>
+
+<svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 C 240 70 480 -10 720 30 S 1200 70 1440 30 V60 H0Z" fill="#1B1530"/></svg>
+<div class="marquee"><div id="marquee"></div></div>
+<div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<main class="wrap">
+  <div class="steps">
+    <div class="step"><div class="ic">👆</div><div><b data-i="s1">Pick a gift</b><span data-i="s1t"></span></div></div>
+    <div class="step"><div class="ic">🎀</div><div><b data-i="s2">Design the wrap</b><span data-i="s2t"></span></div></div>
+    <div class="step"><div class="ic">🎟️</div><div><b data-i="s3">Show your gift list</b><span data-i="s3t"></span></div></div>
+  </div>
+
+  <section id="wishSec" class="hide">
+    <div class="sec-h"><h2 id="wishTitle"></h2><p data-i="wishSub"></p></div>
+    <div class="grid" id="wishGrid"></div>
+  </section>
+
+  <section id="themeSec" class="hide">
+    <div class="theme-band">
+      <div class="sec-h"><h2 id="themeTitle"></h2><p data-i="themeSub"></p></div>
+      <div class="rail" id="themeRail"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="finder-band">
+      <div><h2 data-i="notSure">Not sure what to buy? 🔮</h2><p data-i="notSureT"></p></div>
+      <div class="btns">
+        <button class="cta" id="bandFinder">🔮 <span data-i="giftFinder">Gift finder</span></button>
+        <button class="cta ink" id="bandSurprise" data-i="surprise">🎲 Surprise me</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="menu">
+    <div class="sec-h"><h2><span data-i="chooseWorld">Choose a</span> <em data-i="world">world</em></h2><p data-i="tapWorld"></p></div>
+    <div class="worlds" id="worlds"></div>
+    <div class="toolbar">
+      <div class="search"><input id="q" type="search" data-ph="search" aria-label="Search toys"></div>
+      <select class="sel" id="age" aria-label="Age"></select>
+      <select class="sel" id="sort" aria-label="Sort"></select>
+    </div>
+    <div class="budgets" id="budgets"></div>
+    <div style="height:14px"></div>
+    <div class="result-line" id="resultLine"></div>
+    <div class="grid" id="grid"></div>
+    <button class="cta more hide" id="more">⬇</button>
+  </section>
+
+  <section id="host">
+    <div class="host">
+      <div>
+        <h2 data-i="hostT">Hosting the party? 🎈</h2>
+        <p data-i="hostP"></p>
+        <label data-i="howMany">How many children?</label>
+        <div class="stepper"><button id="kMinus" aria-label="Less">−</button><input id="kids" type="number" min="1" max="200" value="15" aria-label="Number of children"><button id="kPlus" aria-label="More">+</button></div>
+        <div class="host-total" id="hostTotal"></div>
+        <button class="cta ink" id="hostSend" data-i="addList">🎈 Add to my gift list</button>
+      </div>
+      <div class="mini-grid" id="miniGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="flogo" id="flogo"></div>
+  <b id="footShop">Gemini X Toys</b>
+  <div style="margin-top:6px" data-i="footer"></div>
+  <div class="stock-note" id="stockNote"></div>
+</footer>
+
+<div class="shade" id="shade"></div>
+<aside class="drawer" id="drawer" aria-label="Gift bag">
+  <div class="dhead"><h3>🛍️ <span data-i="giftBag">Gift bag</span></h3><button class="x" id="closeBasket" aria-label="Close">×</button></div>
+  <div class="dtabs">
+    <button class="dtab on" data-t="1" data-i="t1">1 · Gifts</button>
+    <button class="dtab" data-t="2" data-i="t2">2 · Wrap</button>
+    <button class="dtab" data-t="3" data-i="t3">3 · Gift list</button>
+  </div>
+  <div class="dbody">
+    <div id="t1">
+      <div id="lines"></div>
+      <div class="total"><div><span data-i="total">Total</span><small data-i="payShop"></small></div><span id="total">QAR 0</span></div>
+      <div class="extras hide" id="extrasBox"><b data-i="extras"></b><small data-i="extrasT"></small><div class="extra-row" id="extras"></div></div>
+      <button class="bigbtn" id="toWrap" data-i="nextWrap">Next: design the wrap 🎀</button>
+    </div>
+    <div id="t2" class="hide">
+      <label data-i="paper">Wrapping paper</label>
+      <div class="papers" id="papers"></div>
+      <label data-i="ribbon">Ribbon</label>
+      <div class="ribbons" id="ribbons"></div>
+      <label for="card" data-i="cardMsg">Name card message</label>
+      <input class="in-f" id="card" maxlength="60" data-ph="cardPh">
+      <div class="preview" id="preview"></div>
+      <button class="bigbtn" id="toReserve" data-i="nextList">Next: my gift list 🎟️</button>
+    </div>
+    <div id="t3" class="hide">
+      <label for="venue" data-i="place">Party place</label>
+      <select class="in-f" id="venue"></select>
+      <label for="child" data-i="child">Birthday child's name</label>
+      <input class="in-f" id="child" data-ph="childPh">
+      <label for="pdate" data-i="pdate">Party date</label>
+      <input class="in-f" id="pdate" type="date">
+      <label for="gname" data-i="yourName">Your name (optional)</label>
+      <input class="in-f" id="gname" data-ph="yourNamePh" autocomplete="name">
+      <div class="note" id="rule"></div>
+      <div class="err" id="err"></div>
+      <button class="bigbtn pinkb" id="reserve" data-i="makeList">🎟️ Make my gift list</button>
+    </div>
+  </div>
+</aside>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true"><button class="x" id="mClose" aria-label="Close">×</button><div id="mBody"></div></div>
+
+<canvas id="fx"></canvas>
+<div class="toast" id="toast"></div>
+
+<script src="assets/common.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

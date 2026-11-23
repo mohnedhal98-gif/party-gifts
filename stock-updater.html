@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock updater · Gift Menu</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .up{max-width:980px;margin:26px auto;padding:0 18px;display:grid;gap:20px}
+  .drop{border:3px dashed var(--ink);border-radius:22px;background:#fff;padding:34px 20px;text-align:center;cursor:pointer;transition:background .2s}
+  .drop.over{background:#FFF3C4}
+  .drop b{font-family:var(--fd);font-size:26px;display:block}
+  .drop span{color:var(--mut);font-weight:700}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .stat{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+  .stat b{font-family:var(--fd);font-size:34px;display:block;line-height:1}
+  .stat small{font-weight:800;color:var(--mut)}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+  th,td{border-bottom:1px solid #eee;padding:7px 8px;text-align:left}
+  th{background:var(--ink);color:var(--y)}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .scroll{overflow:auto;max-height:340px;border:2.5px solid var(--ink);border-radius:14px}
+  .gh{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .ok{color:#0a7d3b;font-weight:900}.bad{color:#D7263D;font-weight:900}
+  ol li{margin:6px 0;font-weight:700}
+  details summary{cursor:pointer;font-weight:900}
+</style>
+</head>
+<body class="ready">
+<div class="top"><div class="wrap">
+  <div class="brand"><div class="logo">📦</div><div>STOCK <span>UPDATER</span></div></div>
+  <a class="basket-btn" href="index.html" style="text-decoration:none">Open gift menu</a>
+</div></div>
+
+<div class="up">
+  <div class="panel">
+    <h2>Update the venue stock</h2>
+    <ol>
+      <li>In Odoo, export the stock of the venue locations (see the guide).</li>
+      <li>Drop the file below (Excel or CSV).</li>
+      <li>Check the numbers, then press <b>Publish to the portal</b>.</li>
+    </ol>
+    <label class="drop" id="drop"><input type="file" id="file" accept=".csv,.xlsx,.xls" hidden>
+      <b>📂 Drop the Odoo stock file here</b><span>or tap to choose it</span></label>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="panel hide" id="result">
+    <h2>What we found</h2>
+    <div class="stats" id="stats"></div>
+    <details style="margin-top:14px"><summary id="unSum"></summary><div class="scroll" style="margin-top:8px"><table id="unTable"></table></div></details>
+    <div class="btns" style="margin-top:16px">
+      <button class="btn" id="publish">🚀 Publish to the portal</button>
+      <button class="btn dark" id="download">⬇ Download stock.json</button>
+    </div>
+    <div id="pubMsg" style="margin-top:10px;font-weight:800"></div>
+  </div>
+
+  <div class="panel">
+    <details id="ghBox"><summary>⚙️ GitHub connection (set up once on this computer)</summary>
+      <p class="meta">Saved only in this browser. Make a fine-grained token on GitHub with <b>Contents: Read and write</b> for this one repository.</p>
+      <div class="gh">
+        <div><label>GitHub user</label><input class="in-f" id="ghOwner" placeholder="mohnedhal98-gif"></div>
+        <div><label>Repository</label><input class="in-f" id="ghRepo" placeholder="party-gifts"></div>
+        <div><label>Branch</label><input class="in-f" id="ghBranch" placeholder="main"></div>
+        <div><label>Folder in the repository</label><input class="in-f" id="ghFolder" placeholder="leave empty"></div>
+        <div><label>Token</label><input class="in-f" id="ghToken" type="password" placeholder="github_pat_…"></div>
+      </div>
+      <div class="btns"><button class="btn dark" id="ghSave">Save</button></div>
+    </details>
+  </div>
+</div>
+
+<script src="assets/xlsx.full.min.js"></script>
+<script>
+{
+  const $ = id => document.getElementById(id);
+  const LS = "gx-stock-gh";
+  let cfg = {}, products = [], out = null;
+  try { cfg = JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) {}
+  ["Owner", "Repo", "Branch", "Token", "Folder"].forEach(k => $("gh" + k).value = cfg[k.toLowerCase()] ?? (k === "Branch" ? "main" : ""));
+  $("ghSave").onclick = () => { ["owner", "repo", "branch", "token", "folder"].forEach(k => cfg[k] = $("gh" + k[0].toUpperCase() + k.slice(1)).value.trim()); try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch (e) {} $("ghSave").textContent = "✓ Saved"; };
+  if (!cfg.token) $("ghBox").open = true;
+
+  let config;
+  Promise.all([fetch("data/products.json?v=" + Date.now()).then(r => r.json()), fetch("data/config.json?v=" + Date.now()).then(r => r.json())])
+    .then(([p, c]) => { products = p; config = c; });
+
+  const drop = $("drop");
+  ["dragover", "dragenter"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", ev => ev.dataTransfer.files[0] && readFile(ev.dataTransfer.files[0]));
+  $("file").onchange = () => $("file").files[0] && readFile($("file").files[0]);
+
+  function readFile(f) {
+    $("err").textContent = "";
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const wb = XLSX.read(r.result, { type: "array" });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "", raw: false });
+        build(rows);
+      } catch (e) { $("err").textContent = "⚠️ Could not read this file: " + e.message; }
+    };
+    r.readAsArrayBuffer(f);
+  }
+
+  const norm = s => String(s || "").trim().toLowerCase();
+  function col(keys, words) { return keys.find(k => words.some(w => norm(k).includes(w))); }
+
+  function build(rows) {
+    if (!rows.length) { $("err").textContent = "⚠️ The file is empty."; return; }
+    const keys = Object.keys(rows[0]);
+    const cLoc = col(keys, ["location", "الموقع"]), cQty = col(keys, ["on hand", "quantity", "qty", "الكمية"]),
+      cBar = col(keys, ["barcode", "باركود"]), cRef = col(keys, ["internal reference", "reference", "default_code"]), cProd = col(keys, ["product", "المنتج"]);
+    if (!cLoc || !cQty) { $("err").textContent = "⚠️ The file needs a Location column and a Quantity column. Columns found: " + keys.join(", "); return; }
+    const byBar = {}, byRef = {}, byName = {};
+    products.forEach(p => { if (p.barcode) byBar[p.barcode] = p.id; if (p.code) byRef[norm(p.code)] = p.id; byName[norm(p.name)] = p.id; });
+    const venues = {}, unmatched = {}, skipLoc = {};
+    config.venues.forEach(v => venues[v.id] = {});
+    rows.forEach(r => {
+      const loc = norm(r[cLoc]), qty = parseFloat(String(r[cQty]).replace(/,/g, "")) || 0;
+      const v = config.venues.find(v => (v.odoo || []).some(o => loc.startsWith(norm(o))));
+      if (!v) { skipLoc[r[cLoc]] = (skipLoc[r[cLoc]] || 0) + 1; return; }
+      let prodTxt = String(r[cProd] || ""), ref = cRef ? r[cRef] : "";
+      const m = prodTxt.match(/^\[([^\]]+)\]\s*(.*)$/); if (m) { ref = ref || m[1]; prodTxt = m[2]; }
+      const bar = cBar ? String(r[cBar]).trim().replace(/\.0$/, "") : "";
+      const id = byBar[bar] || byRef[norm(ref)] || byName[norm(prodTxt)];
+      if (!id) { const k = prodTxt || ref || bar; unmatched[k] = (unmatched[k] || 0) + qty; return; }
+      venues[v.id][id] = (venues[v.id][id] || 0) + qty;
+    });
+    for (const v in venues) for (const id in venues[v]) { venues[v][id] = Math.max(0, Math.floor(venues[v][id])); if (!venues[v][id]) delete venues[v][id]; }
+    out = { updated: new Date().toISOString(), venues };
+    $("result").classList.remove("hide");
+    $("stats").innerHTML = config.venues.map(v => { const m = venues[v.id]; const toys = Object.keys(m).length, units = Object.values(m).reduce((a, b) => a + b, 0);
+      return `<div class="stat"><small>📍 ${v.name}</small><b>${toys}</b><small>toys on the menu · ${units} units</small>${toys ? "" : '<div class="bad">No stock found. Check the export.</div>'}</div>`; }).join("");
+    const un = Object.entries(unmatched).filter(([, q]) => q > 0);
+    $("unSum").textContent = `${un.length} products in the file are not on the gift menu (not toys, or new products). Tap to see.`;
+    $("unTable").innerHTML = "<tr><th>Product</th><th>Qty</th></tr>" + un.map(([k, q]) => `<tr><td>${k.replace(/</g, "&lt;")}</td><td class="n">${q}</td></tr>`).join("");
+    $("pubMsg").textContent = "";
+  }
+
+  $("download").onclick = () => {
+    if (!out) return;
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([JSON.stringify(out)], { type: "application/json" })), download: "stock.json" });
+    a.click();
+  };
+
+  $("publish").onclick = async () => {
+    if (!out) return;
+    if (!cfg.token || !cfg.owner || !cfg.repo) { $("ghBox").open = true; $("pubMsg").innerHTML = '<span class="bad">Fill in the GitHub connection first, or use Download.</span>'; return; }
+    $("pubMsg").textContent = "Publishing…";
+    const dir = (cfg.folder || "").replace(/^\/+|\/+$/g, ""), api = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${dir ? dir + "/" : ""}data/stock.json`, h = { Authorization: "Bearer " + cfg.token, Accept: "application/vnd.github+json" };
+    try {
+      let sha; const g = await fetch(api + "?ref=" + encodeURIComponent(cfg.branch || "main"), { headers: h });
+      if (g.ok) sha = (await g.json()).sha;
+      const body = { message: "Stock update " + new Date().toLocaleString("en-GB"), branch: cfg.branch || "main", content: btoa(unescape(encodeURIComponent(JSON.stringify(out)))), sha };
+      const p = await fetch(api, { method: "PUT", headers: h, body: JSON.stringify(body) });
+      if (!p.ok) throw new Error((await p.json()).message || p.status);
+      $("pubMsg").innerHTML = '<span class="ok">✓ Published. The portal shows the new stock in about 1 minute.</span>';
+    } catch (e) { $("pubMsg").innerHTML = '<span class="bad">⚠️ Could not publish: ' + e.message + "</span>"; }
+  };
+}
+</script>
+</body>
+</html>
