@@ -112,7 +112,10 @@
   function build(rows) {
     if (!rows.length) { $("err").textContent = "⚠️ The file is empty."; return; }
     const keys = Object.keys(rows[0]);
-    const cLoc = col(keys, ["location", "الموقع"]), cQty = col(keys, ["on hand", "quantity", "qty", "الكمية"]),
+    const exact = names => keys.find(k => names.includes(norm(k)));
+    const cRes = keys.find(k => norm(k).includes("reserved"));
+    const cLoc = col(keys, ["location", "الموقع"]),
+      cQty = exact(["quantity", "on hand quantity", "qty", "الكمية"]) || keys.find(k => /quantity|qty|on hand/.test(norm(k)) && !/inventoried|reserved|^product\//.test(norm(k))),
       cBar = col(keys, ["barcode", "باركود"]), cRef = col(keys, ["internal reference", "reference", "default_code"]), cProd = col(keys, ["product", "المنتج"]);
     if (!cLoc || !cQty) { $("err").textContent = "⚠️ The file needs a Location column and a Quantity column. Columns found: " + keys.join(", "); return; }
     const byBar = {}, byRef = {}, byName = {};
@@ -120,7 +123,7 @@
     const venues = {}, unmatched = {}, skipLoc = {};
     config.venues.forEach(v => venues[v.id] = {});
     rows.forEach(r => {
-      const loc = norm(r[cLoc]), qty = parseFloat(String(r[cQty]).replace(/,/g, "")) || 0;
+      const loc = norm(r[cLoc]), qty = (parseFloat(String(r[cQty]).replace(/,/g, "")) || 0) - (cRes ? (parseFloat(String(r[cRes]).replace(/,/g, "")) || 0) : 0);
       const v = config.venues.find(v => (v.odoo || []).some(o => loc.startsWith(norm(o))));
       if (!v) { skipLoc[r[cLoc]] = (skipLoc[r[cLoc]] || 0) + 1; return; }
       let prodTxt = String(r[cProd] || ""), ref = cRef ? r[cRef] : "";
