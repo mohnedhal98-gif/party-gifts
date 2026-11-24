@@ -430,3 +430,9 @@ body.ready .hero .kicker{transform:rotate(-2deg)}
 .tk-item{border-style:dashed}
 @media (max-width:860px){.floaties span{opacity:.6}.wave{height:30px;margin-top:-29px}}
 @media (prefers-reduced-motion:reduce){.floaties span,.blobs i,.steps .step .ic{animation:none}}
+
+/* Proudly Qatari badge */
+.proud{display:inline-flex;align-items:center;gap:10px;margin:16px 0 4px;background:#8A1538;color:#fff;border:3px solid var(--ink);border-radius:16px;padding:8px 14px 8px 8px;box-shadow:var(--sh);font-weight:900;transform:rotate(-1.5deg)}
+.proud .flag{width:44px;height:28px;border-radius:4px;box-shadow:0 0 0 2px #fff;flex:none}
+.proud small{display:block;font-weight:800;opacity:.85;font-size:12px}
+[dir=rtl] .proud{padding:8px 8px 8px 14px;transform:rotate(1.5deg)}
