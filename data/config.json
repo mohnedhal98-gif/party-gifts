@@ -12,7 +12,8 @@
       "odoo": [
         "GMXWH/WoW"
       ],
-      "retail": "WoW Retail"
+      "retail": "WoW Retail",
+      "logo": "images/venues/wow.png"
     },
     {
       "id": "mgp",
@@ -21,7 +22,8 @@
       "odoo": [
         "GMXWH/Megapolis"
       ],
-      "retail": "Megapolis Retail"
+      "retail": "Megapolis Retail",
+      "logo": "images/venues/mgp.png"
     },
     {
       "id": "kdz",
@@ -30,7 +32,8 @@
       "odoo": [
         "GMXWH/KidzMondo"
       ],
-      "retail": "KidzMondo Retail"
+      "retail": "KidzMondo Retail",
+      "logo": "images/venues/kdz.png"
     }
   ],
   "logo": "images/logo.png",

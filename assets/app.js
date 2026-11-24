@@ -89,7 +89,7 @@
     $("langBtn").textContent = t("lang");
     const words = C.shopName.toUpperCase().split(" "), vv = venueOf(venue);
     $("brand").innerHTML = vv && vv.retail
-      ? `<span class="rt">${GX.esc(vv.retail.replace(/ Retail$/i, "").toUpperCase())}</span> RETAIL<small class="byx">${t("byGx")}</small>`
+      ? `${vv.logo ? `<img class="vlogo" src="${GX.esc(vv.logo)}" alt="${GX.esc(vv.retail)}">` : ""}<span class="bt"><span class="rt">${GX.esc(vv.retail.replace(/ Retail$/i, "").toUpperCase())}</span> RETAIL<small class="byx">${t("byGx")}</small></span>`
       : GX.esc(words.slice(0, -1).join(" ")) + " <span>" + GX.esc(words.slice(-1)[0]) + "</span>";
     $("footShop").textContent = C.shopName;
     $("kicker").textContent = party.child ? t("invited") : t("kicker");
