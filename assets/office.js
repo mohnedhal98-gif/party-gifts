@@ -132,6 +132,7 @@
     let L = base.filter(o => filter === "all" ? true : filter === "open" ? isOpen(o) : filter === "unpaid" ? (isOpen(o) && o.paymentStatus !== "paid") : o.status === filter);
     if (q) L = L.filter(o => [o.ref, o.customer, o.whatsapp, o.child].join(" ").toLowerCase().includes(q));
     document.title = (cnt("new") ? `(${cnt("new")}) ` : "") + (MODE === "admin" ? "Admin portal" : "Back office") + " · Gemini X";
+    PP = perPhone();
     $("list").innerHTML = L.length ? L.map(card).join("") : `<div class="o-empty">No orders here yet.</div>`;
   }
 
@@ -149,8 +150,10 @@
       <div class="o-per">${per}</div>`;
   }
 
+  const perPhone = () => orders.reduce((m, x) => (x.status !== "cancelled" && (m[x.whatsapp] = (m[x.whatsapp] || 0) + 1), m), {});
+  let PP = {};
   function card(o) {
-    const v = venueOf(o.venue), [se, sl] = STATUS[o.status] || ["", o.status];
+    const v = venueOf(o.venue), [se, sl] = STATUS[o.status] || ["", o.status], n = PP[o.whatsapp] || 1;
     const items = o.items.map(([id, n]) => { const p = byId[id] || { name: id, price: 0 }; return `<div class="o-it">
         ${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy">` : `<span class="o-noimg">🎁</span>`}
         <div class="o-itn"><b>${n} ×</b> ${esc(p.name)}<small>${p.code ? "Ref " + esc(p.code) + " · " : ""}${money(p.price * n)}</small>
@@ -163,11 +166,11 @@
         <span class="o-st">${se} ${sl}</span></header>
       <div class="o-grid">
         <div class="o-who">
-          <div class="o-name">${esc(o.customer)}</div>
+          <div class="o-name">${esc(o.customer)}${n > 1 ? ` <button class="o-multi" data-act="same" title="Show all orders from this number">🛍️ ${n} orders</button>` : ""}</div>
           <a class="o-phone" href="https://wa.me/${esc(o.whatsapp)}" target="_blank" rel="noopener">🟢 ${esc(fmtPhone(o.whatsapp))}</a>
           <div class="o-party">🎂 ${esc(o.child)}${o.partyDate ? " · " + esc(niceDate(o.partyDate)) : ""}${o.partyTime ? " · " + esc(o.partyTime) : ""}</div>
           <div class="o-pay"><span class="o-pm">${o.payment === "link" ? "📲 Wants payment link" : "💵 Cash on arrival"}</span><span class="o-ps p-${esc(o.paymentStatus)}">${PAY[o.paymentStatus] || esc(o.paymentStatus)}</span></div>
-          <div class="o-wrap">🎀 ${esc(o.wrap)}${o.card ? `<br>💌 “${esc(o.card)}”` : ""}</div>
+          ${String(o.wrap || "").replace(/[\s\/]/g, "") || o.card ? `<div class="o-wrap">${String(o.wrap || "").replace(/[\s\/]/g, "") ? "🎀 " + esc(o.wrap) : ""}${o.card ? `<br>💌 “${esc(o.card)}”` : ""}</div>` : ""}
         </div>
         <div class="o-items">${items}<div class="o-tot"><span>Total</span><b>${money(o.total)}</b></div>
           <button class="obtn ghost small" data-act="bc">${showBc[o.ref] ? "Hide barcodes" : "▦ Show barcodes"}</button></div>
@@ -197,6 +200,7 @@
     else if (act === "next") update(o.ref, { status: b.dataset.to });
     else if (act === "cancel") { if (confirmBox(el, "Cancel this order?")) update(o.ref, { status: "cancelled" }); }
     else if (act === "reopen") update(o.ref, { status: "new" });
+    else if (act === "same") { filter = "all"; q = o.whatsapp; $("search").value = "+" + o.whatsapp; draw(); window.scrollTo({ top: 0, behavior: "smooth" }); }
     else if (act === "bc") { showBc[o.ref] = !showBc[o.ref]; draw(); }
   });
   $("app").addEventListener("change", e => {
