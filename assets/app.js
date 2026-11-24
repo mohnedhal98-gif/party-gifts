@@ -87,16 +87,18 @@
     document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = t(el.dataset.i));
     document.querySelectorAll("[data-ph]").forEach(el => el.placeholder = t(el.dataset.ph));
     $("langBtn").textContent = t("lang");
-    const words = C.shopName.toUpperCase().split(" ");
-    $("brand").innerHTML = GX.esc(words.slice(0, -1).join(" ")) + " <span>" + GX.esc(words.slice(-1)[0]) + "</span>";
+    const words = C.shopName.toUpperCase().split(" "), vv = venueOf(venue);
+    $("brand").innerHTML = vv && vv.retail
+      ? `<span class="rt">${GX.esc(vv.retail.replace(/ Retail$/i, "").toUpperCase())}</span> RETAIL<small class="byx">${t("byGx")}</small>`
+      : GX.esc(words.slice(0, -1).join(" ")) + " <span>" + GX.esc(words.slice(-1)[0]) + "</span>";
     $("footShop").textContent = C.shopName;
     $("kicker").textContent = party.child ? t("invited") : t("kicker");
     $("heroTitle").innerHTML = party.child ? t("titleFor", { c: GX.esc(party.child) }) : t("title");
     $("heroText").textContent = party.child ? t("leadFor", { c: party.child }) : t("lead");
     $("artTag").textContent = party.child ? (lang === "ar" ? "إلى " : "For ") + party.child.slice(0, 9) + "!" : (lang === "ar" ? "لك!" : "For you!");
     $("stk1").textContent = lang === "ar" ? "تغليف مجاني!" : "FREE gift wrap!";
-    $("stk2").textContent = lang === "ar" ? "الدفع في المتجر 💛" : "Pay at the shop 💛";
-    document.title = (party.child ? t("birthday", { c: party.child }) + " · " : "") + C.shopName;
+    $("stk2").textContent = lang === "ar" ? "نقداً أو رابط دفع 💛" : "Cash or pay by link 💛";
+    document.title = (party.child ? t("birthday", { c: party.child }) + " · " : "") + (vv && vv.retail ? vv.retail + " by Gemini X" : C.shopName);
     $("age").innerHTML = `<option value="">${t("anyAge")}</option>` + AGES.map(a => `<option value="${a[0]}">${a[1]} ${t("years")}</option>`).join("");
     $("age").value = F.age;
     $("sort").innerHTML = ["pop", "low", "high"].map(k => `<option value="${k}">${t(k === "pop" ? "topPicks" : k)}</option>`).join(""); $("sort").value = F.sort;
@@ -105,7 +107,7 @@
     $("more").textContent = "⬇";
     $("wishTitle").innerHTML = "💖 " + (party.child ? GX.esc(party.child) + (lang === "ar" ? " · " : "'s ") : "") + `<em>${t("wishlist")}</em>`;
     $("themeTitle").innerHTML = `${TH.e} ` + t("themeTitle", { t: `<em>${GX.esc(thName())}</em>` });
-    const mq = lang === "ar" ? ["🎁 تغليف مجاني", "💌 بطاقة مجانية", "💛 الدفع في المتجر", "🎉 جاهزة للحفلة", `🧸 ${P.length}+ لعبة`] : ["🎁 FREE GIFT WRAP", "💌 FREE NAME CARD", "💛 PAY AT THE SHOP", "🎉 READY FOR THE PARTY", `🧸 ${P.length}+ TOYS`];
+    const mq = lang === "ar" ? ["🎁 تغليف مجاني", "💌 بطاقة مجانية", "💵 نقداً أو 📲 رابط دفع", "🎉 جاهزة للحفلة", `🧸 ${P.length}+ لعبة`] : ["🎁 FREE GIFT WRAP", "💌 FREE NAME CARD", "💵 CASH OR 📲 PAYMENT LINK", "🎉 READY FOR THE PARTY", `🧸 ${P.length}+ TOYS`];
     const m = mq.map(x => `<span>${x}</span><i>★</i>`).join("");
     $("marquee").innerHTML = m + m + m + m;
     if (S.updated) $("stockNote").textContent = "📦 " + t("stockAt") + ": " + new Date(S.updated).toLocaleString(lang === "ar" ? "ar-QA" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -475,7 +477,16 @@
   /* ---------------- gift list (ticket) ---------------- */
   $("child").value = party.child; $("pdate").value = party.date; $("gname").value = st.gname || "";
   $("gname").oninput = () => { st.gname = $("gname").value; save(); };
-  $("reserve").onclick = () => {
+  $("wa").value = st.wa || "";
+  $("wa").oninput = () => { st.wa = $("wa").value; save(); };
+  const phoneOf = v => { let d = String(v || "").replace(/\D/g, ""); if (d.startsWith("00")) d = d.slice(2); if (d.length === 8) d = "974" + d; return d; };
+  const fmtPhone = d => d.startsWith("974") && d.length === 11 ? "+974 " + d.slice(3, 7) + " " + d.slice(7) : "+" + d;
+  const drawPay = () => document.querySelectorAll(".payopt").forEach(b => b.classList.toggle("on", b.dataset.pay === st.pay));
+  $("paygrid").onclick = e => { const b = e.target.closest("[data-pay]"); if (!b) return; st.pay = b.dataset.pay; save(); drawPay(); blip("tick"); };
+  drawPay();
+  let sending = false;
+  $("reserve").onclick = async () => {
+    if (sending) return;
     const err = m => { $("err").textContent = m ? "⚠️ " + m : ""; };
     const ids = bagIds();
     if (!ids.length) return err(t("eGift"));
@@ -484,17 +495,37 @@
     if (!$("pdate").value) return err(t("eDate"));
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (new Date($("pdate").value + "T00:00:00") < today) return err(t("ePast"));
+    if (!$("gname").value.trim()) return err(t("eName"));
+    const phone = phoneOf($("wa").value);
+    if (phone.length < 11 || phone.length > 15) return err(t("ePhone"));
+    if (!st.pay) return err(t("ePay"));
     err("");
-    st.ticket = { ref: "GX-" + Date.now().toString(36).toUpperCase().slice(-5), made: new Date().toISOString(), venue: $("venue").value, child: $("child").value.trim(),
-      date: $("pdate").value, time: party.time, from: $("gname").value.trim(), items: ids.map(id => [id, st.bag[id]]), paper: st.paper, ribbon: st.ribbon, card: st.card.trim(), theme: party.theme };
-    save(); openBag(false); showTicket(true);
+    const tk = { ref: "", made: new Date().toISOString(), venue: $("venue").value, child: $("child").value.trim(), date: $("pdate").value, time: party.time,
+      from: $("gname").value.trim(), phone, pay: st.pay, items: ids.map(id => [id, st.bag[id]]), paper: st.paper, ribbon: st.ribbon, card: st.card.trim(), theme: party.theme };
+    if (C.ordersApi) {
+      sending = true; const btn = $("reserve"), was = btn.innerHTML; btn.disabled = true; btn.innerHTML = "⏳ " + t("sending");
+      try {
+        const r = await fetch(C.ordersApi, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "create", order: {
+          venue: tk.venue, customer: tk.from, whatsapp: phone, child: tk.child, partyDate: tk.date, partyTime: tk.time, payment: tk.pay,
+          items: tk.items, paper: (PAPERS[tk.paper] || {}).en || tk.paper, ribbon: (RIBBONS[tk.ribbon] || [tk.ribbon])[0], card: tk.card, lang } }) });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || "error");
+        tk.ref = j.ref;
+      } catch (e) {
+        sending = false; btn.disabled = false; btn.innerHTML = was;
+        return err(e && e.message && e.message !== "Failed to fetch" && !/JSON|network/i.test(e.message) ? e.message : t("eSend"));
+      }
+      sending = false; btn.disabled = false; btn.innerHTML = was;
+    } else tk.ref = "GX-" + Date.now().toString(36).toUpperCase().slice(-5);
+    st.ticket = tk; st.bag = {}; save(); syncButtons(); drawBag(); openBag(false); showTicket(true);
   };
   function showTicket(fresh) {
     const tk = st.ticket; if (!tk) return;
     const items = tk.items.filter(([id]) => byId[id]);
     const total = items.reduce((a, [id, q]) => a + byId[id].price * q, 0), count = items.reduce((a, [, q]) => a + q, 0), v = venueOf(tk.venue);
     openModal(`<div class="ticket">
-      <div class="tk-head"><div><div class="tk-k">${t("listTitle")}</div><div class="tk-ref">${tk.ref}</div></div>
+      ${tk.phone ? `<div class="tk-ok"><b>${t("orderTitle")}</b><span>${t(tk.pay === "link" ? "weWa" : "weWaCash", { n: GX.esc(fmtPhone(tk.phone)) })}</span></div>` : ""}
+      <div class="tk-head"><div><div class="tk-k">${tk.phone ? t("orderNo") : t("listTitle")}</div><div class="tk-ref">${GX.esc(tk.ref)}</div></div>
         <div class="tk-party"><b>${GX.esc(t("birthday", { c: tk.child }))}</b><span>📅 ${GX.niceDate(tk.date)}${tk.time ? " · " + GX.esc(tk.time) : ""}</span><span>📍 ${GX.esc(v ? v.name : "")}</span>${tk.from ? `<span>💛 ${t("from")} ${GX.esc(tk.from)}</span>` : ""}</div></div>
       <p class="tk-hint">${t("showShop")}</p>
       <div class="tk-items">${items.map(([id, q], n) => { const p = byId[id]; return `<div class="tk-item">
@@ -504,12 +535,12 @@
           <div class="tk-bc" dir="ltr">${GX.barcode(p.barcode) || `<span class="meta">${t("noBarcode")}</span>`}</div></div></div>`; }).join("")}</div>
       <div class="tk-wrap"><div class="tk-sw"><svg width="100%" height="100%"><defs>${pat(tk.paper, "tkp")}</defs><rect width="100%" height="100%" fill="url(#tkp)"/><rect x="42%" width="16%" height="100%" fill="${tk.ribbon}"/></svg></div>
         <div><b>🎀 ${t("wrap")}:</b> ${PAPERS[tk.paper][lang]} · ${(RIBBONS[tk.ribbon] || ["", ""])[lang === "ar" ? 1 : 0]}<br><b>💌 ${t("card")}:</b> ${tk.card ? "“" + GX.esc(tk.card) + "”" : t("cardPh").split("!")[0] + "!"}</div></div>
-      <div class="tk-total"><span>${count} ${count > 1 ? t("items") : t("item")} · ${t("payAtShop")}</span><span class="tk-right"><span class="tk-stamp">🎀 FREE<br>WRAP</span><b>${GX.money(total, cur)}</b></span></div>
-      <div class="hero-ctas" style="justify-content:center"><button class="cta" id="tkEdit">${t("edit")}</button><button class="cta ink" id="tkNew">${t("done")}</button></div>
+      <div class="tk-total"><span>${count} ${count > 1 ? t("items") : t("item")} · ${tk.pay ? (tk.pay === "link" ? t("payLinkTk") : t("payCashTk")) : t("payAtShop")}</span><span class="tk-right"><span class="tk-stamp">🎀 FREE<br>WRAP</span><b>${GX.money(total, cur)}</b></span></div>
+      <div class="hero-ctas" style="justify-content:center">${tk.phone ? "" : `<button class="cta" id="tkEdit">${t("edit")}</button>`}<button class="cta ink" id="tkNew">${t("done")}</button></div>
       <p class="tk-hint" style="text-align:center;margin-top:10px">${t("tip")}</p></div>`);
     $("mBody").querySelectorAll("img").forEach(i => i.classList.add("ld"));
     $("openTicket").classList.remove("hide");
-    $("tkEdit").onclick = () => { closeModal(); openBag(true); };
+    if ($("tkEdit")) $("tkEdit").onclick = () => { closeModal(); openBag(true); };
     $("tkNew").onclick = closeModal;
     if (fresh) { setTimeout(() => burst(innerWidth / 2, 60, 120), 100); blip("win"); }
   }

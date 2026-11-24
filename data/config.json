@@ -11,7 +11,8 @@
       "shopLocation": "Lusail Boulevard",
       "odoo": [
         "GMXWH/WoW"
-      ]
+      ],
+      "retail": "WoW Retail"
     },
     {
       "id": "mgp",
@@ -19,7 +20,8 @@
       "shopLocation": "The Pearl Island",
       "odoo": [
         "GMXWH/Megapolis"
-      ]
+      ],
+      "retail": "Megapolis Retail"
     },
     {
       "id": "kdz",
@@ -27,10 +29,12 @@
       "shopLocation": "Qatar Mall",
       "odoo": [
         "GMXWH/KidzMondo"
-      ]
+      ],
+      "retail": "KidzMondo Retail"
     }
   ],
   "logo": "images/logo.png",
   "safetyBuffer": 1,
-  "logoLight": "images/logo-light.png"
+  "logoLight": "images/logo-light.png",
+  "ordersApi": "https://script.google.com/macros/s/AKfycbyZXDumUPLwh6lCYw8ydZknDYLFh37UJRUU7qa0tN-aGduA_LWGn305mppIXQcw9LWL3Q/exec"
 }

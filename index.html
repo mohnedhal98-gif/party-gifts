@@ -7,7 +7,7 @@
 <meta name="description" content="Pick a birthday gift. We wrap it for free and it waits for you at the party.">
 <meta name="theme-color" content="#1B1530">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="stylesheet" href="assets/style.css?v=5">
 <style>.proud{display:inline-flex;align-items:center;gap:10px;margin:16px 0 4px;background:#8A1538;color:#fff;border:3px solid #1B1530;border-radius:16px;padding:8px 14px 8px 8px;box-shadow:4px 4px 0 #1B1530;font-weight:900;transform:rotate(-1.5deg)}.proud .flag{width:44px;height:28px;border-radius:4px;box-shadow:0 0 0 2px #fff;flex:none}.proud small{display:block;font-weight:800;opacity:.85;font-size:12px}[dir=rtl] .proud{padding:8px 8px 8px 14px;transform:rotate(1.5deg)}</style>
 </head>
 <body>
@@ -137,7 +137,7 @@
   <div class="dtabs">
     <button class="dtab on" data-t="1" data-i="t1">1 · Gifts</button>
     <button class="dtab" data-t="2" data-i="t2">2 · Wrap</button>
-    <button class="dtab" data-t="3" data-i="t3">3 · Gift list</button>
+    <button class="dtab" data-t="3" data-i="t3">3 · Checkout</button>
   </div>
   <div class="dbody">
     <div id="t1">
@@ -163,11 +163,19 @@
       <input class="in-f" id="child" data-ph="childPh">
       <label for="pdate" data-i="pdate">Party date</label>
       <input class="in-f" id="pdate" type="date">
-      <label for="gname" data-i="yourName">Your name (optional)</label>
+      <div class="co-sep" data-i="yourDetails">Your details</div>
+      <label for="gname" data-i="yourName2">Your name</label>
       <input class="in-f" id="gname" data-ph="yourNamePh" autocomplete="name">
+      <label for="wa" data-i="waLabel">WhatsApp number</label>
+      <div class="wa-in" dir="ltr"><span>🇶🇦 +974</span><input class="in-f" id="wa" type="tel" inputmode="tel" autocomplete="tel" placeholder="5555 1234" maxlength="16"></div>
+      <div class="co-sep" data-i="payHow">How would you like to pay?</div>
+      <div class="paygrid" id="paygrid">
+        <button type="button" class="payopt" data-pay="cash"><b>💵</b><span data-i="payCash">Cash on arrival</span><small data-i="payCashT">Pay at the toy shop when you collect</small></button>
+        <button type="button" class="payopt" data-pay="link"><b>📲</b><span data-i="payLink">Payment link</span><small data-i="payLinkT">We'll WhatsApp you a secure link to pay</small></button>
+      </div>
       <div class="note" id="rule"></div>
       <div class="err" id="err"></div>
-      <button class="bigbtn pinkb" id="reserve" data-i="makeList">🎟️ Make my gift list</button>
+      <button class="bigbtn pinkb" id="reserve" data-i="placeOrder">✅ Place my order</button>
     </div>
   </div>
 </aside>
@@ -177,7 +185,7 @@
 <canvas id="fx"></canvas>
 <div class="toast" id="toast"></div>
 
-<script src="assets/common.js"></script>
-<script src="assets/app.js"></script>
+<script src="assets/common.js?v=7"></script>
+<script src="assets/app.js?v=7"></script>
 </body>
 </html>
