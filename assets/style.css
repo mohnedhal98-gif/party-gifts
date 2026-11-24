@@ -462,3 +462,8 @@ body.ready .hero .kicker{transform:rotate(-2deg)}
 @media (max-width:600px){#brand .vlogo{height:34px;padding:2px 4px}#brand .bt{font-size:15px}}
 @media (max-width:430px){#brand .bt .byx{display:none}}
 @media (max-width:480px){#brand .bt{display:none}}
+.ocount{background:var(--pink);color:#fff;border-radius:999px;padding:0 8px;margin-left:4px;font-size:13px}
+.tk-all{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:10px 12px;margin-bottom:12px}
+.tk-all>b{display:block;margin-bottom:6px;font-family:var(--fd)}
+.tk-all>div{display:flex;gap:6px;flex-wrap:wrap}
+.tk-all .pill small{display:block;font-size:11px;opacity:.7;font-weight:700}

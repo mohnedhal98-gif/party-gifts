@@ -113,6 +113,7 @@
     if (S.updated) $("stockNote").textContent = "📦 " + t("stockAt") + ": " + new Date(S.updated).toLocaleString(lang === "ar" ? "ar-QA" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
     drawSound(); drawChips(); drawVenuePick(); drawWorlds(); drawBudgets(); render(true); drawBag(); drawMinis(); drawHost(); drawTheme();
     if (!$("t2").classList.contains("hide")) drawWrap();
+    drawOrderCount();
   }
   $("langBtn").onclick = () => { lang = lang === "ar" ? "en" : "ar"; st.lang = lang; save(); applyLang(); };
 
@@ -517,13 +518,25 @@
       }
       sending = false; btn.disabled = false; btn.innerHTML = was;
     } else tk.ref = "GX-" + Date.now().toString(36).toUpperCase().slice(-5);
-    st.ticket = tk; st.bag = {}; save(); syncButtons(); drawBag(); openBag(false); showTicket(true);
+    st.ticket = tk; st.bag = {}; save();
+    if (tk.phone) { const L = myOrders().filter(o => o.ref !== tk.ref); L.push(tk); try { localStorage.setItem("gx-orders", JSON.stringify(L.slice(-30))); } catch (e) {} }
+    syncButtons(); drawBag(); openBag(false); showTicket(true);
   };
-  function showTicket(fresh) {
-    const tk = st.ticket; if (!tk) return;
+  function myOrders() { try { return JSON.parse(localStorage.getItem("gx-orders") || "[]").filter(o => o && o.ref && o.items); } catch (e) { return []; } }
+  function drawOrderCount() {
+    const n = myOrders().length;
+    $("openTicket").innerHTML = n > 1 ? `🎟️ <span class="t">${t("myOrders")}</span> <b class="ocount">${n}</b>` : `🎟️ <span class="t">${t(n ? "myOrder" : "myList")}</span>`;
+    if (n || st.ticket) $("openTicket").classList.remove("hide");
+  }
+  function showTicket(fresh, pick) {
+    const all = myOrders();
+    let tk = pick ? all.find(o => o.ref === pick) : (st.ticket || all[all.length - 1]);
+    if (!tk && all.length) tk = all[all.length - 1];
+    if (!tk) return;
+    const others = all.length > 1 ? `<div class="tk-all"><b>${t("youHave", { n: all.length })}</b><div>${all.slice().reverse().map(o => `<button class="pill ${o.ref === tk.ref ? "on" : ""}" data-ord="${GX.esc(o.ref)}">${GX.esc(o.ref)}<small>${GX.esc(o.child || "")}</small></button>`).join("")}</div></div>` : "";
     const items = tk.items.filter(([id]) => byId[id]);
     const total = items.reduce((a, [id, q]) => a + byId[id].price * q, 0), count = items.reduce((a, [, q]) => a + q, 0), v = venueOf(tk.venue);
-    openModal(`<div class="ticket">
+    openModal(`<div class="ticket">${others}
       ${tk.phone ? `<div class="tk-ok"><b>${t("orderTitle")}</b><span>${t(tk.pay === "link" ? "weWa" : "weWaCash", { n: GX.esc(fmtPhone(tk.phone)) })}</span></div>` : ""}
       <div class="tk-head"><div><div class="tk-k">${tk.phone ? t("orderNo") : t("listTitle")}</div><div class="tk-ref">${GX.esc(tk.ref)}</div></div>
         <div class="tk-party"><b>${GX.esc(t("birthday", { c: tk.child }))}</b><span>📅 ${GX.niceDate(tk.date)}${tk.time ? " · " + GX.esc(tk.time) : ""}</span><span>📍 ${GX.esc(v ? v.name : "")}</span>${tk.from ? `<span>💛 ${t("from")} ${GX.esc(tk.from)}</span>` : ""}</div></div>
@@ -539,13 +552,14 @@
       <div class="hero-ctas" style="justify-content:center">${tk.phone ? "" : `<button class="cta" id="tkEdit">${t("edit")}</button>`}<button class="cta ink" id="tkNew">${t("done")}</button></div>
       <p class="tk-hint" style="text-align:center;margin-top:10px">${t("tip")}</p></div>`);
     $("mBody").querySelectorAll("img").forEach(i => i.classList.add("ld"));
-    $("openTicket").classList.remove("hide");
+    drawOrderCount();
+    $("mBody").querySelectorAll("[data-ord]").forEach(b => b.onclick = () => showTicket(false, b.dataset.ord));
     if ($("tkEdit")) $("tkEdit").onclick = () => { closeModal(); openBag(true); };
     $("tkNew").onclick = closeModal;
     if (fresh) { setTimeout(() => burst(innerWidth / 2, 60, 120), 100); blip("win"); }
   }
   $("openTicket").onclick = () => showTicket();
-  if (st.ticket) $("openTicket").classList.remove("hide");
+  drawOrderCount();
 
   /* ---------------- confetti ---------------- */
   const cv = $("fx"), cx = cv.getContext("2d"); let parts = [], raf = 0;
