@@ -148,3 +148,32 @@ footer .madein{margin-top:6px;font-weight:800}
 .card .price.tagp::before,.card .price.tagp::after{display:none!important}
 .card .row{flex-wrap:nowrap}
 @media (max-width:520px){.card .row .add{padding:7px 9px;flex:none}.card .price{font-size:21px}.card .body{padding:10px 10px 12px}}
+
+/* fit at 100% zoom */
+html,body{overflow-x:clip}
+.tiles-sec{min-width:0;overflow:hidden}
+.worlds.tiles{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;max-width:100%}
+.worlds.tiles .world{flex:none;scroll-snap-align:start}
+.top.v2 .wrap{flex-wrap:nowrap;min-width:0}
+.top.v2 .top-actions{flex:none;gap:6px}
+#openTicket{white-space:nowrap}
+@media (max-width:1700px){.nav2 a[href="#host"]{display:none}}
+@media (max-width:1560px){.nav2{display:none}.hsearch{max-width:260px}}
+@media (max-width:1180px){#openTicket .t{display:none}.top.v2 #brand .bt{font-size:16px}}
+@media (max-width:980px){.hsearch{display:none}}
+@media (max-width:560px){#brand .bt{display:none}#soundBtn{display:none}.top.v2 .wrap{gap:6px}.top.v2 .tbtn{padding:6px 9px}}
+@media (max-width:400px){.top.v2 .brand .logo,.top.v2 .brand .logo img{height:34px}#brand .vlogo{height:30px;padding:1px 3px}.top.v2 .tbtn,.top.v2 .cart{padding:6px 8px}.top.v2 .wrap{padding:0 10px}#openTicket{padding:6px 8px}}
+/* phone: keep the words on the add button */
+@media (max-width:520px){
+  .card .add .tx{display:inline!important;font-size:14px;font-weight:900}
+  .card .row .add{justify-content:center;gap:6px;width:100%;padding:9px 8px}
+  .card .row .add.in{color:var(--ink)}
+}
+/* quantity stepper on cards */
+.addwrap{display:inline-flex}
+.qty{display:inline-flex;align-items:center;background:var(--green);border:2.5px solid var(--ink);border-radius:14px;box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.qty button{border:0;background:none;font:inherit;font-weight:900;font-size:20px;line-height:1;width:36px;height:38px;cursor:pointer;color:var(--ink)}
+.qty button:hover{background:#ffffff55}
+.qty button[data-step="-1"]{font-size:16px}
+.qty b{min-width:26px;text-align:center;font-family:var(--fd);font-size:18px;background:#fff;align-self:stretch;display:flex;align-items:center;justify-content:center;border-left:2px solid var(--ink);border-right:2px solid var(--ink)}
+@media (max-width:520px){.addwrap{width:100%}.addwrap .add,.addwrap .qty{width:100%}.qty{justify-content:space-between}.qty button{flex:1;height:40px}.qty b{flex:1}}

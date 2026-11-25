@@ -153,6 +153,9 @@
 
   /* ---------------- cards ---------------- */
   const inBag = id => st.bag[id] > 0;
+  const addCtl = id => inBag(id)
+    ? `<span class="qty"><button type="button" data-step="-1" data-id="${id}" aria-label="−">${st.bag[id] > 1 ? "−" : "🗑️"}</button><b>${st.bag[id]}</b><button type="button" data-step="1" data-id="${id}" aria-label="+">+</button></span>`
+    : `<button class="add" data-add="${id}" aria-label="${GX.esc(t("add"))}"><span class="ic">🛒</span><span class="tx">${t("add").replace(/^\+\s*/, "")}</span></button>`;
   const addLabel = id => inBag(id) ? `<span class="ic">✓</span><span class="tx">${t("inBag").replace(/^[✓✔]\s*/, "")}</span>` : `<span class="ic">🛒</span><span class="tx">${t("add").replace(/^\+\s*/, "")}</span>`;
   function cardHtml(p) {
     const wl = party.wish.includes(p.id), few = isFew(p), m = stockMap();
@@ -166,7 +169,7 @@
         <div class="name" title="${GX.esc(p.name)}">${GX.esc(p.name)}</div>
         <div class="meta">${GX.world(p.world).e} ${GX.esc(wName(p.world))} · ${GX.age(p, t("years"))}</div>
         <div class="row"><span class="price tagp"><small>${cur}</small>${Number(p.price).toLocaleString("en-US")}</span>
-        <button class="add ${inBag(p.id) ? "in" : ""}" data-add="${p.id}" aria-label="${GX.esc(t("add"))}">${addLabel(p.id)}</button></div>
+        <span class="addwrap" data-aw="${p.id}">${addCtl(p.id)}</span></div>
       </div></article>`;
   }
 
@@ -239,10 +242,7 @@
     syncButtons();
   }
   function syncButtons() {
-    document.querySelectorAll("[data-add]").forEach(b => {
-      if (!b.closest(".card")) return;
-      const on = inBag(b.dataset.add); b.classList.toggle("in", on); b.innerHTML = addLabel(b.dataset.add);
-    });
+    document.querySelectorAll("[data-aw]").forEach(w => { w.innerHTML = addCtl(w.dataset.aw); });
     $("count").textContent = Object.values(st.bag).reduce((a, b) => a + b, 0);
   }
   const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => {
@@ -289,6 +289,11 @@
   }
   function remove(id) { delete st.bag[id]; save(); syncButtons(); drawBag(); toast(t("removed")); }
   document.body.addEventListener("click", e => {
+    const s = e.target.closest("[data-step]");
+    if (s) { const id = s.dataset.id, d = Number(s.dataset.step);
+      if (d > 0) add(id, s.closest(".card"), s);
+      else { const nq = (st.bag[id] || 0) - 1; if (nq <= 0) remove(id); else { st.bag[id] = nq; save(); syncButtons(); drawBag(); blip("tick"); } }
+      return; }
     const a = e.target.closest("[data-add]");
     if (a) { const id = a.dataset.add; if (inBag(id) && a.closest(".card")) remove(id); else add(id, a.closest(".card") || a.closest(".modal") || a.closest(".extra"), a); if (a.closest(".modal") && a.dataset.close) closeModal(); return; }
     const o = e.target.closest("[data-open]");
