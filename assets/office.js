@@ -10,7 +10,7 @@
   const venueOf = id => C.venues.find(v => v.id === id) || { id, name: id, retail: id };
   const cur = C.currency || "QAR";
   const money = n => cur + " " + (Math.round(n * 100) / 100).toLocaleString("en-GB");
-  const LG = C.logoLight || C.logo;
+  const LG = C.logo || C.logoLight;
   if (LG) $("ologo").innerHTML = `<img src="${esc(LG)}" alt="Gemini X">`;
 
   const STATUS = { new: ["🆕", "New"], preparing: ["🎀", "Preparing"], ready: ["✅", "Ready"], collected: ["🎉", "Collected"], cancelled: ["✖️", "Cancelled"] };
@@ -102,7 +102,7 @@
     const mine = role === "admin" ? null : venueOf(role);
     $("app").innerHTML = `
       <div class="o-bar">
-        <div class="o-title"><b>${role === "admin" ? "Admin portal" : esc(mine.retail || mine.name)}</b><span>${role === "admin" ? "All venues · Gemini X Toys" : "Back office · by Gemini X"}</span></div>
+        ${role !== "admin" && mine.logo ? `<img class="o-vlogo" src="${esc(mine.logo)}" alt="">` : ""}<div class="o-title"><b>${role === "admin" ? "Admin portal" : esc(mine.retail || mine.name)}</b><span>${role === "admin" ? "All venues · Gemini X Toys" : "Back office · by Gemini X"}</span></div>
         <div class="o-tools"><span class="o-upd" id="upd"></span><button class="tbtn" id="refresh">🔄 Refresh</button>${role === "admin" ? '<button class="tbtn" id="csv">⬇️ Export</button>' : ""}<button class="tbtn" id="logout">Log out</button></div>
       </div>
       ${role === "admin" ? '<div class="o-stats" id="stats"></div>' : ""}
@@ -162,7 +162,7 @@
     const payBtns = o.status === "cancelled" ? "" : (o.paymentStatus === "paid" ? `<button class="obtn ghost" data-act="unpaid">Undo paid</button>` :
       `${o.payment === "link" && o.paymentStatus === "pending" ? `<button class="obtn" data-act="link">📲 Mark link sent</button>` : ""}<button class="obtn green" data-act="paid">💰 Mark paid</button>`);
     return `<article class="o-card s-${esc(o.status)}" data-ref="${esc(o.ref)}">
-      <header><div><span class="o-ref">${esc(o.ref)}</span>${role === "admin" ? `<span class="o-ven">${esc(v.retail || v.name)}</span>` : ""}<span class="o-ago">${ago(o.created)}</span></div>
+      <header><div><span class="o-ref">${esc(o.ref)}</span>${role === "admin" ? `<span class="o-ven">${v.logo ? `<img src="${esc(v.logo)}" alt="">` : ""}${esc(v.retail || v.name)}</span>` : ""}<span class="o-ago">${ago(o.created)}</span></div>
         <span class="o-st">${se} ${sl}</span></header>
       <div class="o-grid">
         <div class="o-who">
