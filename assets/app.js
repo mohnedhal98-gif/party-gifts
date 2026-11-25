@@ -49,7 +49,7 @@
   $("floaties").innerHTML = [TH.art, "🧸", "🎈", "🚀", "🧱", "🦖", "🎁", "⭐"].map((e, i) => `<span style="left:${[6, 18, 34, 52, 64, 78, 88, 44][i]}%;top:${[18, 70, 12, 82, 22, 64, 30, 50][i]}%;animation-delay:-${i * .9}s;font-size:${[38, 30, 34, 28, 36, 30, 32, 26][i]}px" data-depth="${(i % 3) + 1}">${e}</span>`).join("");
   addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
     document.querySelectorAll("#floaties span").forEach(s => { const d = +s.dataset.depth * 10; s.style.translate = `${-x * d}px ${-y * d}px`; }); }, { passive: true });
-  const LG = C.logoLight || C.logo; if (LG) { $("logo").innerHTML = `<img src="${GX.esc(LG)}" alt="Gemini X">`; $("logo").classList.add("img"); $("flogo").innerHTML = `<img src="${GX.esc(LG)}" alt="Gemini X">`; }
+  const LG = C.logo || C.logoLight; if (LG) { $("logo").innerHTML = `<img src="${GX.esc(LG)}" alt="Gemini X">`; $("logo").classList.add("img"); $("flogo").innerHTML = `<img src="${GX.esc(LG)}" alt="Gemini X">`; }
 
   /* ---------------- sounds & stickers (game feel) ---------------- */
   let actx;
@@ -111,7 +111,7 @@
     const m = mq.map(x => `<span>${x}</span><i>★</i>`).join("");
     $("marquee").innerHTML = m + m + m + m;
     if (S.updated) $("stockNote").textContent = "📦 " + t("stockAt") + ": " + new Date(S.updated).toLocaleString(lang === "ar" ? "ar-QA" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-    drawSound(); drawChips(); drawVenuePick(); drawWorlds(); drawBudgets(); render(true); drawBag(); drawMinis(); drawHost(); drawTheme();
+    drawSound(); drawChips(); drawVenuePick(); drawWorlds(); drawPopular(); drawBudgets(); render(true); drawBag(); drawMinis(); drawHost(); drawTheme();
     if (!$("t2").classList.contains("hide")) drawWrap();
     drawOrderCount();
   }
@@ -153,6 +153,7 @@
 
   /* ---------------- cards ---------------- */
   const inBag = id => st.bag[id] > 0;
+  const addLabel = id => inBag(id) ? `<span class="ic">✓</span><span class="tx">${t("inBag").replace(/^[✓✔]\s*/, "")}</span>` : `<span class="ic">🛒</span><span class="tx">${t("add").replace(/^\+\s*/, "")}</span>`;
   function cardHtml(p) {
     const wl = party.wish.includes(p.id), few = isFew(p), m = stockMap();
     return `<article class="card" data-id="${p.id}">
@@ -165,7 +166,7 @@
         <div class="name" title="${GX.esc(p.name)}">${GX.esc(p.name)}</div>
         <div class="meta">${GX.world(p.world).e} ${GX.esc(wName(p.world))} · ${GX.age(p, t("years"))}</div>
         <div class="row"><span class="price tagp"><small>${cur}</small>${Number(p.price).toLocaleString("en-US")}</span>
-        <button class="add ${inBag(p.id) ? "in" : ""}" data-add="${p.id}">${inBag(p.id) ? t("inBag") : t("add")}</button></div>
+        <button class="add ${inBag(p.id) ? "in" : ""}" data-add="${p.id}" aria-label="${GX.esc(t("add"))}">${addLabel(p.id)}</button></div>
       </div></article>`;
   }
 
@@ -175,9 +176,24 @@
     const counts = P.reduce((a, p) => (a[p.world] = (a[p.world] || 0) + 1, a), {});
     const worlds = [{ id: "", e: "🌈", c: "#fff" }, ...GX.WORLDS.filter(w => counts[w.id])];
     if (F.world && !counts[F.world]) F.world = "";
-    $("worlds").innerHTML = worlds.map(w => `<button class="world ${F.world === w.id ? "on" : ""}" data-w="${GX.esc(w.id)}"><div class="bub" style="background:${w.c}">${w.e}</div><b>${w.id ? GX.esc(wName(w.id)) : t("allToys")}</b><small>${w.id ? counts[w.id] : P.length} ${t("toys")}</small></button>`).join("");
+    const ranked = [...P].sort((a, b) => (b.clean ? 1 : 0) - (a.clean ? 1 : 0) || score(b) - score(a));
+    const best = {}; ranked.forEach(p => { if (p.image && !best[p.world]) best[p.world] = p; });
+    const anyBest = ranked.find(p => p.image && p.world !== (ranked[0] || {}).world) || ranked.find(p => p.image);
+    $("worlds").innerHTML = worlds.map(w => { const pic = w.id ? best[w.id] : anyBest;
+      return `<button class="world tile ${F.world === w.id ? "on" : ""}" data-w="${GX.esc(w.id)}" style="--wc:${w.id ? w.c : "#FFC700"}"><span class="tl-t"><b>${w.id ? GX.esc(wName(w.id)) : t("allToys")}</b><small>${w.id ? counts[w.id] : P.length} ${t("toys")}</small><i class="tl-arr">→</i></span>${pic ? `<img src="${GX.esc(pic.image)}" alt="" loading="lazy">` : `<span class="tl-e">${w.e}</span>`}</button>`; }).join("");
   }
-  $("worlds").onclick = e => { const b = e.target.closest(".world"); if (!b) return; F.world = b.dataset.w; F.ids = null; F.label = ""; page = 1; drawWorlds(); render(true); blip("tick"); };
+  $("worlds").onclick = e => { const b = e.target.closest(".world"); if (!b) return; F.world = b.dataset.w; F.ids = null; F.label = ""; page = 1; drawWorlds(); render(true); blip("tick"); $("menu").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  /* header search mirrors the main search */
+  $("q2").oninput = () => { $("q").value = $("q2").value; $("q").dispatchEvent(new Event("input")); };
+  $("q2").onkeydown = e => { if (e.key === "Enter") $("menu").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  /* popular row + hero showcase */
+  function drawPopular() {
+    const seen = {}, top = [...P].filter(p => p.image).sort((a, b) => (b.clean ? 1 : 0) - (a.clean ? 1 : 0) || score(b) - score(a)).filter(p => (seen[p.world] = (seen[p.world] || 0) + 1) <= 1);
+    $("popGrid").innerHTML = top.slice(0, 5).map(cardHtml).join(""); reveal($("popGrid"));
+    const pw = {}, pics = [...P].filter(p => p.image && p.clean).sort((a, b) => score(b) - score(a)).filter(p => (pw[p.world] = (pw[p.world] || 0) + 1) <= 1).slice(0, 5);
+    $("showcase").innerHTML = pics.map((p, i) => `<img class="sc-i i${i}" src="${GX.esc(p.image)}" alt="${GX.esc(p.name)}" data-open="${p.id}">`).join("");
+    syncButtons();
+  }
   const drawBudgets = () => $("budgets").innerHTML = BUDGETS.map(b => `<button class="pill ${F.budget === b[0] ? "on" : ""}" data-b="${b[0]}">${budgetLabel(b)}</button>`).join("");
   $("budgets").onclick = e => { const b = e.target.closest(".pill"); if (!b) return; F.budget = b.dataset.b; F.ids = null; F.label = ""; page = 1; drawBudgets(); render(true); blip("tick"); };
   let qt; $("q").oninput = () => { clearTimeout(qt); qt = setTimeout(() => { F.q = $("q").value.trim().toLowerCase(); F.ids = null; page = 1; render(true); }, 160); };
@@ -225,7 +241,7 @@
   function syncButtons() {
     document.querySelectorAll("[data-add]").forEach(b => {
       if (!b.closest(".card")) return;
-      const on = inBag(b.dataset.add); b.classList.toggle("in", on); b.textContent = on ? t("inBag") : t("add");
+      const on = inBag(b.dataset.add); b.classList.toggle("in", on); b.innerHTML = addLabel(b.dataset.add);
     });
     $("count").textContent = Object.values(st.bag).reduce((a, b) => a + b, 0);
   }
@@ -408,6 +424,7 @@
   }
   document.querySelectorAll(".dtab").forEach(b => b.onclick = () => tab(+b.dataset.t));
   $("toWrap").onclick = () => tab(2);
+  $("b3Wrap").onclick = () => { if (bagIds().length) { openBag(true); tab(2); } else { toast(t("pickFirst")); $("popular").scrollIntoView({ behavior: "smooth" }); } };
   $("toReserve").onclick = () => tab(3);
   function drawBag() {
     const ids = bagIds();

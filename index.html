@@ -8,69 +8,97 @@
 <meta name="theme-color" content="#1B1530">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 <link rel="stylesheet" href="assets/style.css?v=7">
-<style>.proud{display:inline-flex;align-items:center;gap:10px;margin:16px 0 4px;background:#8A1538;color:#fff;border:3px solid #1B1530;border-radius:16px;padding:8px 14px 8px 8px;box-shadow:4px 4px 0 #1B1530;font-weight:900;transform:rotate(-1.5deg)}.proud .flag{width:44px;height:28px;border-radius:4px;box-shadow:0 0 0 2px #fff;flex:none}.proud small{display:block;font-weight:800;opacity:.85;font-size:12px}[dir=rtl] .proud{padding:8px 8px 8px 14px;transform:rotate(1.5deg)}</style>
+<link rel="stylesheet" href="assets/v2.css?v=1">
+<style>.proud-old{display:inline-flex;align-items:center;gap:10px;margin:16px 0 4px;background:#8A1538;color:#fff;border:3px solid #1B1530;border-radius:16px;padding:8px 14px 8px 8px;box-shadow:4px 4px 0 #1B1530;font-weight:900;transform:rotate(-1.5deg)}.proud .flag{width:44px;height:28px;border-radius:4px;box-shadow:0 0 0 2px #fff;flex:none}.proud small{display:block;font-weight:800;opacity:.85;font-size:12px}[dir=rtl] .proud{padding:8px 8px 8px 14px;transform:rotate(1.5deg)}</style>
 </head>
 <body>
-<div class="top"><div class="wrap">
-  <div class="brand"><div class="logo" id="logo">🎁</div><div id="brand">GEMINI X <span>TOYS</span></div></div>
+<div class="top v2"><div class="wrap">
+  <a class="brand" href="#top"><div class="logo" id="logo">🎁</div><div id="brand">GEMINI X <span>TOYS</span></div></a>
+  <nav class="nav2" aria-label="Main">
+    <a href="#top" class="on" data-i="navHome">Home</a>
+    <a href="#popular" data-i="navTop">Top picks</a>
+    <a href="#shopWorlds" data-i="navWorlds">Worlds</a>
+    <a href="#menu" data-i="navAll">All gifts</a>
+    <a href="#host" data-i="navHost">Host a party</a>
+  </nav>
+  <label class="hsearch"><span>🔍</span><input id="q2" type="search" data-ph="search" aria-label="Search toys"></label>
   <div class="top-actions">
     <button class="tbtn" id="langBtn" aria-label="Language">عربي</button>
     <button class="tbtn icon" id="soundBtn" aria-label="Sound" title="Sound">🔇</button>
-    <button class="tbtn" id="topFinder">🔮 <span class="t" data-i="giftFinder">Gift finder</span></button>
+    <button class="tbtn icon hide-sm" id="topFinder" title="Gift finder">🔮<span class="t" data-i="giftFinder">Gift finder</span></button>
     <button class="tbtn hide" id="openTicket">🎟️ <span class="t" data-i="myList">My list</span></button>
-    <button class="basket-btn" id="openBasket">🛍️ <span class="t" data-i="giftBag">Gift bag</span> <b id="count">0</b></button>
+    <button class="basket-btn cart" id="openBasket" aria-label="Gift bag"><span class="cart-ic">🛒</span><span class="t" data-i="giftBag">Gift bag</span><b id="count">0</b></button>
   </div>
 </div></div>
 
-<header class="hero">
-  <div class="balloons" id="balloons"></div>
-  <div class="floaties" id="floaties" aria-hidden="true"></div>
-  <div class="wrap">
-    <div>
+<header class="hero v2" id="top">
+  <div class="balloons" id="balloons" hidden></div>
+  <div class="floaties" id="floaties" aria-hidden="true" hidden></div>
+  <div class="wrap h2grid">
+    <div class="h2left">
       <span class="kicker" id="kicker">🎉 Birthday Gift Menu</span>
       <h1 id="heroTitle">Pick a gift.<br>We <span class="nm">wrap</span> it.</h1>
       <p class="lead" id="heroText"></p>
-      <div class="proud"><svg class="flag" width="44" height="28" viewBox="0 0 28 11" preserveAspectRatio="none" aria-label="Qatar flag"><rect width="28" height="11" fill="#fff"/><path fill="#8A1538" d="M28 0H8L10.6 0.611L8 1.222L10.6 1.833L8 2.444L10.6 3.056L8 3.667L10.6 4.278L8 4.889L10.6 5.5L8 6.111L10.6 6.722L8 7.333L10.6 7.944L8 8.556L10.6 9.167L8 9.778L10.6 10.389L8 11H28Z"/></svg><div>Proudly Qatari<small>شركة قطرية · Made for families in Qatar</small></div></div>
       <div class="count hide" id="countdown"></div>
       <div class="party-chips" id="partyChips"></div>
       <div class="venue-pick hide" id="venuePick"><b data-i="wherePrompt">📍 Where is the party?</b><span data-i="whereT"></span><div id="venueChips"></div></div>
       <div class="hero-ctas">
-        <a class="cta ink" href="#menu" data-i="seeAll">🎁 See all gifts</a>
-        <button class="cta pink" id="heroFinder" data-i="helpChoose">🔮 Help me choose</button>
-        <button class="cta" id="heroSurprise" data-i="surprise">🎲 Surprise me</button>
+        <a class="cta shop" href="#popular"><span data-i="seeAll">🎁 See all gifts</span> <i>→</i></a>
+      </div>
+      <div class="trust">
+        <div><span>🎀</span><b data-i="tr1">Free gift wrap</b><small data-i="tr1t">Name card included</small></div>
+        <div><span>💳</span><b data-i="tr2">Cash or pay by link</b><small data-i="tr2t">Sent to your WhatsApp</small></div>
+        <div><span>🎂</span><b data-i="tr3">Ready at the party</b><small data-i="tr3t">At our toy shop</small></div>
       </div>
     </div>
-    <div class="giftart" aria-hidden="true">
-      <svg viewBox="0 0 300 300">
-        <g class="pop"><circle cx="150" cy="78" r="58" fill="#fff" stroke="#1B1530" stroke-width="5"/><clipPath id="popClip"><circle cx="150" cy="78" r="52"/></clipPath><image id="popImg" href="" x="98" y="26" width="104" height="104" clip-path="url(#popClip)" preserveAspectRatio="xMidYMid meet"/><text x="150" y="98" font-size="56" text-anchor="middle" id="artPop">🧸</text></g>
-        <rect x="58" y="150" width="184" height="130" rx="14" fill="var(--ac)" stroke="#1B1530" stroke-width="6"/>
-        <g opacity=".35" fill="#fff"><circle cx="90" cy="185" r="7"/><circle cx="200" cy="250" r="9"/><circle cx="120" cy="250" r="5"/><circle cx="215" cy="180" r="6"/><circle cx="85" cy="255" r="4"/></g>
-        <rect x="134" y="150" width="32" height="130" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
-        <g class="lid">
-          <rect x="44" y="112" width="212" height="44" rx="12" fill="var(--ac)" stroke="#1B1530" stroke-width="6"/>
-          <rect x="134" y="112" width="32" height="44" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
-          <path d="M150 112 C110 60 70 80 96 108 Z" fill="#38B6FF" stroke="#1B1530" stroke-width="6" stroke-linejoin="round"/>
-          <path d="M150 112 C190 60 230 80 204 108 Z" fill="#38B6FF" stroke="#1B1530" stroke-width="6" stroke-linejoin="round"/>
-          <circle cx="150" cy="110" r="12" fill="#FFC700" stroke="#1B1530" stroke-width="6"/>
-        </g>
-        <g transform="rotate(-12 226 216)"><rect x="200" y="200" width="78" height="40" rx="8" fill="#fff" stroke="#1B1530" stroke-width="4"/><text x="239" y="226" font-size="15" font-weight="800" text-anchor="middle" font-family="Nunito,sans-serif" fill="#1B1530" id="artTag">For you!</text></g>
-      </svg>
-      <div class="sticker s1" id="stk1">FREE gift wrap!</div>
-      <div class="sticker s2" id="stk2">Pay at the shop 💛</div>
+
+    <div class="showcase">
+      <div class="proud-tag"><svg class="flag" width="34" height="22" viewBox="0 0 28 11" preserveAspectRatio="none" aria-label="Qatar flag"><rect width="28" height="11" fill="#fff"/><path fill="#8A1538" d="M28 0H8L10.6 0.611L8 1.222L10.6 1.833L8 2.444L10.6 3.056L8 3.667L10.6 4.278L8 4.889L10.6 5.5L8 6.111L10.6 6.722L8 7.333L10.6 7.944L8 8.556L10.6 9.167L8 9.778L10.6 10.389L8 11H28Z"/></svg><div>Proudly Qatari<small>شركة قطرية</small></div></div>
+      <div class="sc-stage" id="showcase" aria-hidden="true"></div>
+      <span class="sc-st a" id="stk1">FREE gift wrap!</span>
+      <span class="sc-st b" data-i="topPick">Top pick</span>
+      <span class="sc-ball p" aria-hidden="true">Pick</span><span class="sc-ball w" aria-hidden="true">Wrap</span>
+      <span class="sc-fun" id="stk2">Cash or pay by link 💛</span>
+    </div>
+
+    <div class="fcard">
+      <b class="fc-h">⭐ <span data-i="notSure">Not sure what to buy?</span></b>
+      <p data-i="notSureT"></p>
+      <div class="fc-btns">
+        <button class="cta pink" id="heroFinder" data-i="helpChoose">🔮 Help me choose</button>
+        <button class="cta ghost" id="heroSurprise" data-i="surprise">🎲 Surprise me</button>
+      </div>
+      <span class="fc-wow">Wow!</span>
+      <div class="giftart" aria-hidden="true">
+        <svg viewBox="0 0 300 300">
+          <g class="pop"><circle cx="150" cy="78" r="58" fill="#fff" stroke="#1B1530" stroke-width="5"/><clipPath id="popClip"><circle cx="150" cy="78" r="52"/></clipPath><image id="popImg" href="" x="98" y="26" width="104" height="104" clip-path="url(#popClip)" preserveAspectRatio="xMidYMid meet"/><text x="150" y="98" font-size="56" text-anchor="middle" id="artPop">🧸</text></g>
+          <rect x="58" y="150" width="184" height="130" rx="14" fill="#FF4F8B" stroke="#1B1530" stroke-width="6"/>
+          <g opacity=".45" fill="#1B1530"><circle cx="90" cy="185" r="6"/><circle cx="200" cy="250" r="7"/><circle cx="120" cy="250" r="5"/><circle cx="215" cy="180" r="6"/><circle cx="85" cy="255" r="4"/><circle cx="110" cy="215" r="5"/><circle cx="220" cy="220" r="5"/></g>
+          <rect x="134" y="150" width="32" height="130" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
+          <g class="lid">
+            <rect x="44" y="112" width="212" height="44" rx="12" fill="#FF4F8B" stroke="#1B1530" stroke-width="6"/>
+            <rect x="134" y="112" width="32" height="44" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
+            <path d="M150 112 C110 60 70 80 96 108 Z" fill="#FFC700" stroke="#1B1530" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M150 112 C190 60 230 80 204 108 Z" fill="#FFC700" stroke="#1B1530" stroke-width="6" stroke-linejoin="round"/>
+            <circle cx="150" cy="110" r="12" fill="#38B6FF" stroke="#1B1530" stroke-width="6"/>
+          </g>
+          <g style="display:none"><text id="artTag">For you!</text></g>
+        </svg>
+      </div>
     </div>
   </div>
 </header>
-
-<svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 C 240 70 480 -10 720 30 S 1200 70 1440 30 V60 H0Z" fill="#1B1530"/></svg>
-<div class="marquee"><div id="marquee"></div></div>
-<div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="marquee" hidden><div id="marquee"></div></div>
 
 <main class="wrap">
-  <div class="steps">
-    <div class="step"><div class="ic">👆</div><div><b data-i="s1">Pick a gift</b><span data-i="s1t"></span></div></div>
-    <div class="step"><div class="ic">🎀</div><div><b data-i="s2">Design the wrap</b><span data-i="s2t"></span></div></div>
-    <div class="step"><div class="ic">🎟️</div><div><b data-i="s3">Show your gift list</b><span data-i="s3t"></span></div></div>
-  </div>
+  <section id="shopWorlds" class="tiles-sec">
+    <div class="worlds tiles" id="worlds"></div>
+  </section>
+
+  <section id="popular" class="panel">
+    <div class="sec-h2"><h2><span data-i="popT">Popular gifts</span> <span class="chip-y">⭐ <span data-i="topPicks">Top picks</span></span></h2><a href="#menu" class="viewall"><span data-i="viewAll">View all</span> →</a></div>
+    <div class="grid pop-row" id="popGrid"></div>
+  </section>
 
   <section id="wishSec" class="hide">
     <div class="sec-h"><h2 id="wishTitle"></h2><p data-i="wishSub"></p></div>
@@ -85,7 +113,7 @@
   </section>
 
   <section>
-    <div class="finder-band">
+    <div class="finder-band" hidden>
       <div><h2 data-i="notSure">Not sure what to buy? 🔮</h2><p data-i="notSureT"></p></div>
       <div class="btns">
         <button class="cta" id="bandFinder">🔮 <span data-i="giftFinder">Gift finder</span></button>
@@ -95,8 +123,7 @@
   </section>
 
   <section id="menu">
-    <div class="sec-h"><h2><span data-i="chooseWorld">Choose a</span> <em data-i="world">world</em></h2><p data-i="tapWorld"></p></div>
-    <div class="worlds" id="worlds"></div>
+    <div class="sec-h2"><h2><span data-i="allGiftsT">All gifts</span></h2><p class="mut" data-i="tapWorld"></p></div>
     <div class="toolbar">
       <div class="search"><input id="q" type="search" data-ph="search" aria-label="Search toys"></div>
       <select class="sel" id="age" aria-label="Age"></select>
@@ -122,11 +149,34 @@
       <div class="mini-grid" id="miniGrid"></div>
     </div>
   </section>
+  <section class="bottom3">
+    <div class="b3 wrapcard">
+      <b class="b3h">🎀 <span data-i="b1h">Free gift wrap studio</span></b>
+      <p data-i="b1t">Choose the paper, the ribbon and a name card. We wrap it for free.</p>
+      <button class="cta pink" id="b3Wrap"><span data-i="b1b">Design my wrap</span> →</button>
+      <span class="b3-badge">FREE</span>
+    </div>
+    <div class="b3 how">
+      <b class="b3h">🎁 <span data-i="b2h">How it works</span></b>
+  <div class="steps v2">
+    <div class="step"><div class="ic">👆</div><div><b data-i="s1">Pick a gift</b><span data-i="s1t"></span></div></div>
+    <div class="step"><div class="ic">🎀</div><div><b data-i="s2">Design the wrap</b><span data-i="s2t"></span></div></div>
+    <div class="step"><div class="ic">🎟️</div><div><b data-i="s3">Show your gift list</b><span data-i="s3t"></span></div></div>
+  </div>
+
+    </div>
+    <div class="b3 qa">
+      <b class="b3h"><svg class="flag" width="34" height="22" viewBox="0 0 28 11" preserveAspectRatio="none" aria-label="Qatar flag"><rect width="28" height="11" fill="#fff"/><path fill="#8A1538" d="M28 0H8L10.6 0.611L8 1.222L10.6 1.833L8 2.444L10.6 3.056L8 3.667L10.6 4.278L8 4.889L10.6 5.5L8 6.111L10.6 6.722L8 7.333L10.6 7.944L8 8.556L10.6 9.167L8 9.778L10.6 10.389L8 11H28Z"/></svg> <span data-i="b3h">Proudly Qatari</span></b>
+      <p data-i="b3t">Toy shops inside WoW, Megapolis and KidzMondo. Made for families in Qatar.</p>
+      <span class="b3-smile">😊</span>
+    </div>
+  </section>
 </main>
 
 <footer>
   <div class="flogo" id="flogo"></div>
   <b id="footShop">Gemini X Toys</b>
+  <div class="madein" data-i="madeIn">Made with 💛 in Qatar</div>
   <div style="margin-top:6px" data-i="footer"></div>
   <div class="stock-note" id="stockNote"></div>
 </footer>
@@ -185,7 +235,7 @@
 <canvas id="fx"></canvas>
 <div class="toast" id="toast"></div>
 
-<script src="assets/common.js?v=8"></script>
-<script src="assets/app.js?v=9"></script>
+<script src="assets/common.js?v=9"></script>
+<script src="assets/app.js?v=10"></script>
 </body>
 </html>
